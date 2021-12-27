@@ -3,7 +3,7 @@ WiFi Component
 
 .. seo::
     :description: Instructions for setting up the WiFi configuration for your ESP node in ESPHome.
-    :image: network-wifi.png
+    :image: network-wifi.svg
     :keywords: WiFi, WLAN, ESP8266, ESP32
 
 This core ESPHome component sets up WiFi connections to access points
@@ -26,6 +26,8 @@ dramatically improve connection times.
         gateway: 10.0.0.1
         subnet: 255.255.255.0
 
+.. _wifi-configuration_variables:
+
 Configuration variables:
 ------------------------
 
@@ -38,33 +40,38 @@ Configuration variables:
   that is reachable will be connected to. See :ref:`wifi-networks`.
 - **manual_ip** (*Optional*): Manually configure the static IP of the node.
 
-  - **static_ip** (*Required*, IPv4 address): The static IP of your node.
-  - **gateway** (*Required*, IPv4 address): The gateway of the local network.
-  - **subnet** (*Required*, IPv4 address): The subnet of the local network.
+  - **static_ip** (**Required**, IPv4 address): The static IP of your node.
+  - **gateway** (**Required**, IPv4 address): The gateway of the local network.
+  - **subnet** (**Required**, IPv4 address): The subnet of the local network.
   - **dns1** (*Optional*, IPv4 address): The main DNS server to use.
   - **dns2** (*Optional*, IPv4 address): The backup DNS server to use.
 
 - **use_address** (*Optional*, string): Manually override what address to use to connect
-  to the ESP. Defaults to auto-generated value.
+  to the ESP. Defaults to auto-generated value. Example, if you have changed your static IP and want to flash OTA to the previously configured IP address.
+
 - **ap** (*Optional*): Enable an access point mode on the node.
 
-  - **ssid** (*Required*, string): The name of the access point to create.
-  - **password** (*Optional* string): The password for the access point. Leave empty for
+  - **ssid** (*Optional*, string): The name of the access point to create. Leave empty to use
+    the device name.
+  - **password** (*Optional*, string): The password for the access point. Leave empty for
     no password.
   - **channel** (*Optional*, int): The channel the AP should operate on from 1 to 14.
     Defaults to 1.
   - **manual_ip** (*Optional*): Manually set the IP options for the AP. Same options as
     manual_ip for station mode.
+  - **ap_timeout** (*Optional*, :ref:`config-time`): The time after which to enable the
+    configured fallback hotspot. Defaults to ``1min``.
 
 - **domain** (*Optional*, string): Set the domain of the node hostname used for uploading.
   For example, if it's set to ``.local``, all uploads will be sent to ``<HOSTNAME>.local``.
   Defaults to ``.local``.
-- **reboot_timeout** (*Optional*, :ref:`time <config-time>`): The amount of time to wait before rebooting when no
+- **reboot_timeout** (*Optional*, :ref:`config-time`): The amount of time to wait before rebooting when no
   WiFi connection exists. Can be disabled by setting this to ``0s``, but note that the low level IP stack currently
-  seems to have issues with WiFi where a full reboot is required to get the interface back working. Defaults to ``5min``.
-- **power_save_mode** (*Optional*, string): The power save mode for the WiFi interface. Defaults to no power saving.
+  seems to have issues with WiFi where a full reboot is required to get the interface back working. Defaults to ``15min``.
+- **power_save_mode** (*Optional*, string): The power save mode for the WiFi interface.
   See :ref:`wifi-power_save_mode`
 
+- **output_power** (*Optional*, string): The amount of TX power for the WiFi interface from 10dB to 20.5dB. Default for ESP8266 is 20dB, 20.5dB might cause unexpected restarts.
 - **fast_connect** (*Optional*, boolean): If enabled, directly connects to WiFi network without doing a full scan
   first. This is required for hidden networks and can significantly improve connection times. Defaults to ``off``.
   The downside is that this option connects to the first network the ESP sees, even if that network is very far away and
@@ -79,7 +86,28 @@ ESPHome has an optional "Access Point Mode". If you include ``ap:``
 in your wifi configuration, ESPHome will automatically set up an access point that you
 can connect to. Additionally, you can specify both a "normal" station mode and AP mode at the
 same time. This will cause ESPHome to only enable the access point when no connection
-to the wifi router can be made.
+to the WiFi router can be made.
+
+.. code-block:: yaml
+
+    wifi:
+      ap:
+        ssid: "Livingroom Fallback Hotspot"
+        password: "W1PBGyrokfLz"
+
+You can also create a simple ``ap`` config which will set up the access point to have the
+devices name as the ssid with no password.
+
+.. code-block:: yaml
+
+    wifi:
+      ap: {}
+
+    # or if you still want the ap to have a password
+
+    wifi:
+      ap:
+        password: "W1PBGyrokfLz"
 
 .. _wifi-manual_ip:
 
@@ -111,6 +139,10 @@ Additionally, this can help with :doc:`Over-The-Air updates <ota>` if for exampl
 home network doesn't allow for ``.local`` addresses. When a manual IP is in your configuration,
 the OTA process will automatically choose that as the target for the upload.
 
+.. note::
+
+    See also :ref:`esphome-changing_node_name`.
+
 .. _wifi-power_save_mode:
 
 Power Save Mode
@@ -121,11 +153,8 @@ WiFi. While some options *can* reduce the power usage of the ESP, they generally
 reliability of the WiFi connection, with frequent disconnections from the router in the highest
 power saving mode.
 
-The default is ``none`` (a bit of power saving). If you experience frequent WiFi disconnection problems,
-please also try ``light``.
-
-- ``NONE`` (least power saving, Default)
-- ``LIGHT``
+- ``NONE`` (least power saving, Default for ESP8266)
+- ``LIGHT`` (Default for ESP32)
 - ``HIGH`` (most power saving)
 
 .. code-block:: yaml
@@ -161,17 +190,84 @@ Configuration variables:
 
 - **ssid** (*Optional*, string): The SSID or WiFi network name.
 - **password** (*Optional*, string): The password to use for authentication. Leave empty for no password.
+- **manual_ip** (*Optional*): Manually configure the static IP of the node when using this network. Note that
+  when using different static IP addresses on each network, it is required to set ``use_address``, as ESPHome
+  cannot infer to which network the node is connected.
+
+  - **static_ip** (**Required**, IPv4 address): The static IP of your node.
+  - **gateway** (**Required**, IPv4 address): The gateway of the local network.
+  - **subnet** (**Required**, IPv4 address): The subnet of the local network.
+  - **dns1** (*Optional*, IPv4 address): The main DNS server to use.
+  - **dns2** (*Optional*, IPv4 address): The backup DNS server to use.
+
+- **eap** (*Optional*): See :ref:`eap`.
 - **channel** (*Optional*, int): The channel of the network (1-14). If given, only connects to networks
   that are on this channel.
-- **bssid** (*Optional*, string): Optionally define a BSSID (MAC-Address) of the network to connect to.
-  This can be used to further restrict which networks to connect to.
+- **bssid** (*Optional*, string): The connection's BSSID (MAC address). BSSIDs must consist of six
+  two-digit hexadecimal values separated by colon characters ("``:``"). All letters must be in upper case.
 - **hidden** (*Optional*, boolean): Whether this network is hidden. Defaults to false.
   If you add this option you also have to specify ssid.
+- **priority** (*Optional*, float): The priority of this network. After each time, the network with
+  the highest priority is chosen. If the connection fails, the priority is decreased by one.
+  Defaults to ``0``.
+
+.. _eap:
+
+Enterprise Authentication
+-------------------------
+
+WPA2_EAP Enterprise Authentication is supported on ESP32s and ESP8266s.
+In order to configure this feature you must use the :ref:`wifi-networks` style configuration.
+The ESP32 is known to work with PEAP, EAP-TTLS, and the certificate based EAP-TLS.
+These are advanced settings and you will usually need to consult your enterprise network administrator.
+
+.. code-block:: yaml
+
+    # Example EAP configuration
+    wifi:
+      networks:
+      - ssid: EAP-TTLS_EnterpriseNetwork
+        eap:
+          username: bob
+          password: VerySafePassword
+      - ssid: EAP-TLS_EnterpriseNetwork
+        eap:
+          identity: bob
+          certificate_authority: ca_cert.pem
+          certificate: cert.pem
+          key: key.pem
+
+Configuration variables:
+
+- **identity** (*Optional*, string): The outer identity to pass to the EAP authentication server.
+  This is required for EAP-TLS.
+- **username** (*Optional*, string): The username to present to the authenticating server.
+- **password** (*Optional*, string): The password to present to the authentication server.
+  For EAP-TLS this password may be set to decrypt to private key instead.
+- **certificate_authority** (*Optional*, string): Path to a PEM encoded certificate to use when validating the authentication server.
+- **certificate** (*Optional*, string): Path to a PEM encoded certificate to use for EAP-TLS authentication.
+- **key** (*Optional*, string): Path to a PEM encoded private key matching ``certificate`` for EAP-TLS authentication.
+  Optionally encrypted with ``password``.
+
+.. _wifi-connected_condition:
+
+``wifi.connected`` Condition
+----------------------------
+
+This :ref:`Condition <config-condition>` checks if the WiFi client is currently connected to a station.
+
+.. code-block:: yaml
+
+    on_...:
+      if:
+        condition:
+          wifi.connected:
+        then:
+          - logger.log: WiFi is connected!
 
 See Also
 --------
 
-- :apiref:`wifi_component.h`
+- :doc:`captive_portal`
+- :apiref:`wifi/wifi_component.h`
 - :ghedit:`Edit`
-
-.. disqus::

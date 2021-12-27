@@ -3,7 +3,7 @@ Logger Component
 
 .. seo::
     :description: Instructions for setting up the central logging component in ESPHome.
-    :image: file-document-box.png
+    :image: file-document-box.svg
 
 The logger component automatically logs all log messages through the
 serial port and through MQTT topics. By default, all logs with a
@@ -21,17 +21,29 @@ Configuration variables:
 
 -  **baud_rate** (*Optional*, int): The baud rate to use for the serial
    UART port. Defaults to ``115200``. Set to ``0`` to disable logging via UART.
--  **tx_buffer_size** (*Optional*, int): The size of the buffer used
-   for log messages. Decrease this if you’re having memory problems.
-   Defaults to ``512``.
--  **hardware_uart** (*Optional*, string): The Hardware UART to use for logging.
-   Defaults to ``UART0``.
 -  **level** (*Optional*, string): The global log level. Any log message
    with a lower severity will not be shown. Defaults to ``DEBUG``.
 -  **logs** (*Optional*, mapping): Manually set the log level for a
    specific component or tag. See :ref:`Manual Log Levels for more
    information <logger-manual_tag_specific_levels>`.
 -  **id** (*Optional*, :ref:`config-id`): Manually specify the ID used for code generation.
+
+Advanced settings:
+
+-  **tx_buffer_size** (*Optional*, int): The size of the buffer used
+   for log messages. Decrease this if you’re having memory problems.
+   Defaults to ``512``.
+-  **hardware_uart** (*Optional*, string): The Hardware UART to use for logging.
+   Defaults to ``UART0``.
+-  **esp8266_store_log_strings_in_flash** (*Optional*, boolean): If set to false, disables storing
+   log strings in the flash section of the device (uses more memory). Defaults to true.
+-  **on_message** (*Optional*, :ref:`Automation <automation>`): An action to be
+   performed when a message is to be logged. The variables ``int level``, ``const char* tag`` and
+   ``const char* message`` are available for lambda processing.
+-  **deassert_rts_dtr** (*Optional*, boolean): Deasserts RTS/DTR when opening
+   log over UART. This is useful if RTS/DTR signals are directly connected to
+   the reset pin or strapping pins. Note: Deassert typically means high on TTL
+   level since RTS/DTR are usually low active signals. Defaults to ``false``.
 
 .. _logger-hardware_uarts:
 
@@ -49,8 +61,8 @@ Possible Hardware UART configurations:
 - ``UART0`` - TX: GPIO1, RX: GPIO3
 - ``UART0_SWAP`` - TX: GPIO15, RX: GPIO13  (Only on ESP8266)
 - ``UART1`` - TX: GPIO2, RX: None  (Only on ESP8266)
-- ``UART1`` - TX: GPIO9, RX: GPIO10  (Only on ESP832)
-- ``UART2`` - TX: GPIO16, RX: GPIO17  (Only on ESP832)
+- ``UART1`` - TX: GPIO9, RX: GPIO10  (Only on ESP32)
+- ``UART2`` - TX: GPIO16, RX: GPIO17  (Only on ESP32)
 
 .. _logger-log_levels:
 
@@ -89,7 +101,8 @@ Possible log levels are (sorted by severity):
 -  ``VERY_VERBOSE``
 
   - All internal messages are logged. Including all the data flowing through data buses like
-    i2c, spi or uart. Color: white
+    I²C, SPI or UART. Warning: May cause the device to slow down and have trouble staying
+    connecting due to amount of generated messages. Color: white
 
 .. _logger-manual_tag_specific_levels:
 
@@ -118,7 +131,7 @@ Next, we can manually set the log levels in the configuration like this:
         mqtt.client: ERROR
 
 Please note that the global log level determines what log messages are
-saved in the binary. So for example a ``INFO`` global log message will
+saved in the binary. So for example an ``INFO`` global log message will
 purge all ``DEBUG`` log statements from the binary in order to conserve
 space. This however means that you cannot set tag-specific log levels
 that have a lower severity than the global log level.
@@ -153,11 +166,38 @@ Configuration options:
 -  **tag** (*Optional*, string): The tag (seen in front of the message in the logs) to print the message
    with. Defaults to ``main``.
 
+Logger Automation
+-----------------
+
+.. _logger-on_message:
+
+``on_message``
+**************
+
+This automation will be triggered when a new message is added to the log.
+In :ref:`lambdas <config-lambda>` you can get the message, log level and tag from the trigger
+using ``message`` (``const char *``), ``level`` (``int``) and ``tag`` (``const char *``).
+
+.. code-block:: yaml
+
+    logger:
+      # ...
+      on_message:
+        level: ERROR
+        then:
+          - mqtt.publish:
+              topic: some/topic
+              payload: !lambda |-
+                return "Triggered on_message with level " + to_string(level) + ", tag " + tag + " and message " + message;
+
+.. note::
+
+    Logging will not work in the ``on_message`` trigger. You can't use the :ref:`logger.log <logger-log_action>` action
+    and the ``ESP_LOGx`` logging macros in this automation.
+
 See Also
 --------
 
 - :doc:`/components/uart`
-- :apiref:`log_component.h`
+- :apiref:`logger/logger.h`
 - :ghedit:`Edit`
-
-.. disqus::

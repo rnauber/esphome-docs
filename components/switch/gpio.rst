@@ -3,7 +3,7 @@ GPIO Switch
 
 .. seo::
     :description: Instructions for setting up GPIO pin switches in ESPHome that control GPIO outputs.
-    :image: pin.png
+    :image: pin.svg
 
 The ``gpio`` switch platform allows you to use any pin on your node as a
 switch. You can for example hook up a relay to a GPIO pin and use it
@@ -29,14 +29,21 @@ Configuration variables:
 - **name** (**Required**, string): The name for the switch.
 - **id** (*Optional*, :ref:`config-id`): Manually specify the ID used for code generation.
 - **restore_mode** (*Optional*): Control how the GPIO Switch attempts to restore state on bootup.
+  For restoring on ESP8266s, also see ``esp8266_restore_from_flash`` in the
+  :doc:`esphome section </components/esphome>`.
 
     - ``RESTORE_DEFAULT_OFF`` (Default) - Attempt to restore state and default to OFF if not possible to restore.
     - ``RESTORE_DEFAULT_ON`` - Attempt to restore state and default to ON.
+    - ``RESTORE_INVERTED_OFF`` - Attempt to restore state inverted from the previous state and default to OFF.
+    - ``RESTORE_INVERTED_ON`` - Attempt to restore state inverted from the previous state and default to ON.
     - ``ALWAYS_OFF`` - Always initialize the pin as OFF on bootup.
     - ``ALWAYS_ON`` - Always initialize the pin as ON on bootup.
 
 - **interlock** (*Optional*, list): A list of other GPIO switches in an interlock group. See
   :ref:`switch-gpio-interlocking`.
+- **interlock_wait_time** (*Optional*, :ref:`config-time`): For interlocking mode, set how long
+  to wait after other items in an interlock group have been disabled before re-activating.
+  Useful for motors where immediately turning on in the other direction could cause problems.
 
 - All other options from :ref:`Switch <config-switch>`.
 
@@ -52,13 +59,13 @@ To create an active-low switch (one that is turned off by default), use the :ref
       - platform: gpio
         pin:
           number: 25
-          inverted: yes
+          inverted: true
 
 Momentary Switch
 ----------------
 
 To create momentary switches, for example switches that toggle a pin for a moment, you can use
-:doc:`template switches <template>`.
+`on_turn_on` trigger.
 
 An example that uses a single relay to activate a remote control button. The button can only
 start or stop the motor of the gate. In itself, the button or remote can not know if it opens
@@ -71,11 +78,9 @@ or closes the gate. The relay simulates the button press for 500ms.
       - platform: gpio
         pin: 25
         id: relay
-      - platform: template
         name: "Gate Remote"
         icon: "mdi:gate"
-        turn_on_action:
-        - switch.turn_on: relay
+        on_turn_on:
         - delay: 500ms
         - switch.turn_off: relay
 
@@ -134,6 +139,9 @@ Or with some YAML anchors you can further simplify the config:
     So it is **highly** recommended to use hardware interlocks (like SPDT-type relays) that ensure
     that two GPIOs are never active at the same time.
 
+See also ``interlock_wait_time`` to make interlocks group wait some amount of time before activating
+a switch.
+
 See Also
 --------
 
@@ -141,7 +149,5 @@ See Also
 - :doc:`/components/output/gpio`
 - :doc:`/components/cover/template`
 - :doc:`/cookbook/garage-door`
-- :apiref:`switch_/gpio_switch.h`
+- :apiref:`gpio/switch/gpio_switch.h`
 - :ghedit:`Edit`
-
-.. disqus::

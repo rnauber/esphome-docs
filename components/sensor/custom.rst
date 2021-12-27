@@ -3,7 +3,7 @@ Custom Sensor Component
 
 .. seo::
     :description: Instructions for setting up Custom C++ sensors with ESPHome.
-    :image: language-cpp.png
+    :image: language-cpp.svg
     :keywords: C++, Custom
 
 .. warning::
@@ -20,7 +20,7 @@ In this guide, we will go through creating a custom sensor component for the
 `BMP180 <https://www.adafruit.com/product/1603>`__ pressure sensor (we will only do the pressure part,
 temperature is more or less the same). During this guide, you will learn how to 1. define a custom sensor
 ESPHome can use 2. go over how to register the sensor so that it will be shown inside Home Assistant and
-3. leverage an existing arduino library for the BMP180 with ESPHome.
+3. leverage an existing Arduino library for the BMP180 with ESPHome.
 
 .. note::
 
@@ -45,13 +45,13 @@ In ESPHome, a **sensor** is some hardware device (like a BMP180) that periodical
 sends out numbers, for example a temperature sensor that periodically publishes its temperature **state**.
 
 Another important abstraction in ESPHome is the concept of a **component**. In ESPHome,
-a **component** is an object with a *lifecycle* managed by the :cpp:class:`Application` class.
+a **component** is an object with a *lifecycle* managed by the :apiclass:`Application` class.
 What does this mean? Well if you've coded in Arduino before you might know the two special methods
 ``setup()`` and ``loop()``. ``setup()`` is called one time when the node boots up and ``loop()`` is called
 very often and this is where you can do things like read out sensors etc.
 
 Components have something similar to that: They also have ``setup()`` and ``loop()`` methods which will be
-called by the application kind of like the arduino functions.
+called by the application kind of like the Arduino functions.
 
 So, let's now take a look at some code: This is an example of a custom component class (called ``MyCustomSensor`` here):
 
@@ -59,9 +59,7 @@ So, let's now take a look at some code: This is an example of a custom component
 
     #include "esphome.h"
 
-    using namespace esphome;
-
-    class MyCustomSensor : public Component, public sensor::Sensor {
+    class MyCustomSensor : public Component, public Sensor {
      public:
       void setup() override {
         // This will be called by App.setup()
@@ -71,37 +69,34 @@ So, let's now take a look at some code: This is an example of a custom component
       }
     };
 
-In the first two lines, we're importing ESPHome so you can use the APIs and telling the compiler that
-we want to use the esphome "namespace" (you don't need to know what this is now, it's basically just
-there to have a clean, well-structured codebase).
+In the first two lines, we're importing ESPHome so you can use the APIs via the ``#include``
+statement.
 
 Let's now also take a closer look at this line, which you might not be too used to when writing Arduino code:
 
 .. code-block:: cpp
 
-    class MyCustomSensor : public Component, public sensor::Sensor {
+    class MyCustomSensor : public Component, public Sensor {
 
 What this line is essentially saying is that we're defining our own class that's called ``MyCustomSensor``
-which is also a subclass of :cpp:class:`Component` and :cpp:class:`sensor::Sensor`
-(in the namespace ``sensor::``). As described before, these two "parent" classes have
-special semantics that we will make use of.
+which is also a subclass of :apiclass:`Component` and :apiclass:`Sensor <sensor::Sensor>`.
+As described before, these two "parent" classes have special semantics that we will make use of.
 
 We *could* go implement our own sensor code now by replacing the contents of ``setup()`` and ``loop()``.
 In ``setup()`` we would initialize the sensor and in ``loop()`` we would read out the sensor and publish
 the latest values.
 
 However, there's a small problem with that approach: ``loop()`` gets called very often (about 60 times per second).
-If we would publish a new state each time that method is called we would quickly make the node unresponsive
-since the MQTT protocol wasn't really designed for 60 messages per second.
+If we would publish a new state each time that method is called we would quickly make the node unresponsive.
 
-So this fix this, we will use an alternative class to :cpp:class:`Component`: :cpp:class`PollingComponent`.
+So lets fix this, we will use an alternative class to :apiclass:`Component`: :apiclass:`PollingComponent`.
 This class is for situations where you have something that should get called repeatedly with some **update interval**.
-In the code above, we can simply replace :cpp:class:`Component` by :cpp:class:`PollingComponent` and
+In the code above, we can simply replace :apiclass:`Component` by :apiclass:`PollingComponent` and
 ``loop()`` by a special method ``update()`` which will be called with an interval we can specify.
 
 .. code-block:: cpp
 
-    class MyCustomSensor : public PollingComponent, public sensor::Sensor {
+    class MyCustomSensor : public PollingComponent, public Sensor {
      public:
       // constructor
       MyCustomSensor() : PollingComponent(15000) {}
@@ -115,11 +110,11 @@ In the code above, we can simply replace :cpp:class:`Component` by :cpp:class:`P
     };
 
 
-Our code has slightly changed, as explained above we're now inheriting from :cpp:class:`PollingComponent` instead of
-just :cpp:class:`Component`. Additionally, we now have a new line: the constructor. You also don't really need to
+Our code has slightly changed, as explained above we're now inheriting from :apiclass:`PollingComponent` instead of
+just :apiclass:`Component`. Additionally, we now have a new line: the constructor. You also don't really need to
 know much about constructors here, so to simplify let's just say this is where we "initialize" the custom sensor.
 
-In this constructor we're telling the compiler that we want :cpp:class:`PollingComponent` to be instantiated with an
+In this constructor we're telling the compiler that we want :apiclass:`PollingComponent` to be instantiated with an
 *update interval* of 15s, or 15000 milliseconds (ESPHome uses milliseconds internally).
 
 Let's also now make our sensor actually publish values in the ``update()`` method:
@@ -136,6 +131,57 @@ Let's also now make our sensor actually publish values in the ``update()`` metho
 Every time ``update`` is called we will now **publish** a new value to the frontend.
 The rest of ESPHome will then take care of processing this value and ultimately publishing it
 to the outside world (for example using MQTT).
+
+One last thing. Some sensors, such as the BMP180 were are going to explain later, require some other component before they can be used. Remember how we talked about the ``setup()`` method? Well just like when writing in the Arduino IDE, components need to be set up in the right order. For that ESPHome introduces another method in the :apiclass:`Component` class.
+
+.. code-block:: cpp
+
+    float get_setup_priority() const override { return esphome::setup_priority::HARDWARE; }
+
+Where HARDWARE can be any of:
+
+.. code-block:: cpp
+
+    /// For communication buses like i2c/spi
+    extern const float BUS;
+    /// For components that represent GPIO pins like PCF8573
+    extern const float IO;
+    /// For components that deal with hardware and are very important like GPIO switch
+    extern const float HARDWARE;
+    /// For components that import data from directly connected sensors like DHT.
+    extern const float DATA;
+    /// Alias for DATA (here for compatibility reasons)
+    extern const float HARDWARE_LATE;
+    /// For components that use data from sensors like displays
+    extern const float PROCESSOR;
+    extern const float WIFI;
+    /// For components that should be initialized after WiFi is connected.
+    extern const float AFTER_WIFI;
+    /// For components that should be initialized after a data connection (API/MQTT) is connected.
+    extern const float AFTER_CONNECTION;
+    /// For components that should be initialized at the very end of the setup process.
+    extern const float LATE;
+
+Now don't let the wording confuse you. The ``get_setup_priority()`` method is an override. Instead of fetching the setup priority setup for us, it instead fetches the setup priority for esphome, while being defined by us. The BMP180 would for instance need to be setup with a priority of IO or lower. A serial streaming (TCP) server would require a working WIFI setup and therefore get AFTER_WIFI.
+
+This finalizes our example as:
+
+.. code-block:: cpp
+
+    class MyCustomSensor : public PollingComponent, public Sensor {
+     public:
+      // constructor
+      MyCustomSensor() : PollingComponent(15000) {}
+
+      float get_setup_priority() const override { return esphome::setup_priority::XXXX; }
+
+      void setup() override {
+        // This will be called by App.setup()
+      }
+      void update() override {
+        // This will be called every "update_interval" milliseconds.
+      }
+    };
 
 Step 2: Registering the custom sensor
 -------------------------------------
@@ -196,11 +242,11 @@ Step 3: BMP180 support
 Let's finally make this custom sensor useful by adding the BMP180 aspect into it! Sure, printing ``42`` is a nice number
 but it won't help with home automation :D
 
-A great feature of ESPHome is that you don't need to code everything yourself. You can use any existing arduino
+A great feature of ESPHome is that you don't need to code everything yourself. You can use any existing Arduino
 library to do the work for you! Now for this example we'll
 use the `Adafruit BMP085 Library <https://platformio.org/lib/show/525/Adafruit%20BMP085%20Library>`__
 library to implement support for the BMP085 sensor. But you can find other libraries too on the
-`platformio library index <https://platformio.org/lib>`__
+`PlatformIO library index <https://platformio.org/lib>`__
 
 First we'll need to add the library to our project dependencies. To do so, put ``Adafruit BMP085 Library``
 in your global ``libraries``:
@@ -220,8 +266,6 @@ Next, include the library at the top of your custom sensor file you created prev
     #include "esphome.h"
     #include "Adafruit_BMP085.h"
 
-    using namespace esphome;
-
     // ...
 
 Then update the sensor for BMP180 support:
@@ -230,7 +274,7 @@ Then update the sensor for BMP180 support:
 
     // ...
 
-    class MyCustomSensor : public PollingComponent, public sensor::Sensor {
+    class MyCustomSensor : public PollingComponent, public Sensor {
      public:
       Adafruit_BMP085 bmp;
 
@@ -249,7 +293,7 @@ Then update the sensor for BMP180 support:
     // ...
 
 There's not too much going on there. First, we define the variable ``bmp`` of type ``Adafruit_BMP085``
-inside our class as a class member. This is the object the adafruit library exposes and through which
+inside our class as a class member. This is the object the Adafruit library exposes and through which
 we will communicate with the sensor.
 
 In our custom ``setup()`` function we're *initializing* the library (using ``.begin()``) and in
@@ -301,8 +345,8 @@ Let's look at what that could look like in code:
     class MyCustomSensor : public PollingComponent {
      public:
       Adafruit_BMP085 bmp;
-      sensor::Sensor *temperature_sensor = new sensor::Sensor();
-      sensor::Sensor *pressure_sensor = new sensor::Sensor();
+      Sensor *temperature_sensor = new Sensor();
+      Sensor *pressure_sensor = new Sensor();
 
       MyCustomSensor() : PollingComponent(15000) { }
 
@@ -359,6 +403,7 @@ Note that the number of arguments you put in the curly braces *must* match the n
 ``sensors:`` block - *and* they must be in the same order.
 
 Configuration variables:
+************************
 
 - **lambda** (**Required**, :ref:`lambda <config-lambda>`): The lambda to run for instantiating the
   sensor(s).
@@ -367,9 +412,28 @@ Configuration variables:
 
   - All options from :ref:`Sensor <config-sensor>`.
 
+Logging in Custom Components
+----------------------------
+
+It is possible to log inside of custom components too. You can use the provided ``ESP_LOGx``
+functions for this.
+
+.. code-block:: cpp
+
+    ESP_LOGD("custom", "This is a custom debug message");
+    // Levels:
+    //  - ERROR: ESP_LOGE
+    //  - WARNING: ESP_LOGW
+    //  - INFO: ESP_LOGI
+    //  - DEBUG: ESP_LOGD
+    //  - VERBOSE: ESP_LOGV
+    //  - VERY_VERBOSE: ESP_LOGVV
+
+    ESP_LOGD("custom", "The value of sensor is: %f", this->state);
+
+See :ref:`display-printf` for learning about how to use formatting in log strings.
+
 See Also
 --------
 
 - :ghedit:`Edit`
-
-.. disqus::

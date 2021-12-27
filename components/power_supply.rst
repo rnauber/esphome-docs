@@ -3,7 +3,7 @@ Power Supply Component
 
 .. seo::
     :description: Instructions for setting up power supplies which will automatically turn on together with outputs.
-    :image: power.png
+    :image: power.svg
     :keywords: power, ATX
 
 The ``power_supply`` component allows you to have a high power mode for
@@ -69,7 +69,5 @@ See Also
 --------
 
 - :doc:`output/index`
-- :apiref:`power_supply_component.h`
+- :apiref:`power_supply/power_supply.h`
 - :ghedit:`Edit`
-
-.. disqus::

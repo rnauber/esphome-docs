@@ -50,7 +50,7 @@ required to be set up in your configuration for this sensor to work.
 Configuration variables:
 ------------------------
 
-- **address** (*Optional*, int): Manually specify the i^2c address of the sensor. Defaults to ``0x40``.
+- **address** (*Optional*, int): Manually specify the I²C address of the sensor. Defaults to ``0x40``.
 - **channel_1** (*Optional*): The configuration options for the 1st channel.
 
   - **shunt_resistance** (*Optional*, float): The value of the shunt resistor on this channel for current calculation.
@@ -81,8 +81,6 @@ See Also
 
 - :ref:`sensor-filters`
 - :doc:`ina219`
-- :apiref:`sensor/ina3221.h`
+- :apiref:`ina3221/ina3221.h`
 - `INA3221 Arduino Library <https://github.com/switchdoclabs/SDL_Arduino_INA3221>`__ by `SwitchDoc Labs <https://github.com/switchdoclabs>`__
 - :ghedit:`Edit`
-
-.. disqus::

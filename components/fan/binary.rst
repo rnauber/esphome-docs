@@ -3,7 +3,7 @@ Binary Fan
 
 .. seo::
     :description: Instructions for setting up binary fans.
-    :image: fan.png
+    :image: fan.svg
 
 The ``binary`` fan platform lets you represent any binary :ref:`output` as a fan.
 
@@ -27,6 +27,8 @@ Configuration variables:
 - **name** (**Required**, string): The name for this fan.
 - **oscillation_output** (*Optional*, :ref:`config-id`): The id of the
   :ref:`output <output>` to use for the oscillation state of this fan. Default is empty.
+- **direction_output** (*Optional*, :ref:`config-id`): The id of the
+  :ref:`output <output>` to use for the direction state of the fan. Default is empty.
 - **id** (*Optional*, :ref:`config-id`): Manually specify
   the ID used for code generation.
 - All other options from :ref:`Fan Component <config-fan>`.
@@ -39,5 +41,3 @@ See Also
 - :doc:`/components/fan/index`
 - :apiref:`fan/fan_state.h`
 - :ghedit:`Edit`
-
-.. disqus::

@@ -7,8 +7,7 @@ HTU21D Temperature+Humidity Sensor
     :keywords: HTU21D
 
 The HTU21D Temperature+Humidity sensor allows you to use your HTU21D
-(`datasheet <https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FHPC199_6%7FA6%7Fpdf%7FEnglish%7FENG_DS_HPC199_6_A6.pdf%7FCAT-HSC0004>`__,
-`adafruit <https://www.adafruit.com/product/1899>`__) sensors with
+(`Adafruit <https://www.adafruit.com/product/1899>`__) sensors with
 ESPHome. The :ref:`I²C Bus <i2c>` is
 required to be set up in your configuration for this sensor to work.
 
@@ -65,8 +64,6 @@ See Also
 - :doc:`dht12`
 - :doc:`hdc1080`
 - :doc:`sht3xd`
-- :apiref:`sensor/htu21d_component.h`
+- :apiref:`htu21d/htu21d.h`
 - `i2cdevlib <https://github.com/jrowberg/i2cdevlib>`__ by `Jeff Rowberg <https://github.com/jrowberg>`__
 - :ghedit:`Edit`
-
-.. disqus::

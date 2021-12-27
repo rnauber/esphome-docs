@@ -25,91 +25,76 @@ for some motors.
 
     Controlling the cover to quickly (sending new open/close commands within a minute of previous commands)
     might cause unexpected behaviour (eg: cover stopping halfway). This is because the delayed relay off
-    feature is implemented using asynchronous automations. So every time a open/close command is sent a
+    feature is implemented using asynchronous automations. So every time an open/close command is sent a
     delayed relay off command is added and old ones are not removed.
 
 .. code-block:: yaml
 
-  esphome:
-    name: cover
-    platform: ESP8266
-    board: esp01_1m
+    esphome:
+      name: cover
+      platform: ESP8266
+      board: esp01_1m
 
-  wifi:
-    ssid: '***'
-    password: '***'
+    wifi:
+      ssid: '***'
+      password: '***'
 
-  api:
+    api:
 
-  logger:
+    logger:
 
-  ota:
+    ota:
 
-  binary_sensor:
+    binary_sensor:
     - platform: gpio
       pin:
-        number: 10
+        number: GPIO10
         inverted: true
       id: button
       on_press:
         then:
           # logic for cycling through movements: open->stop->close->stop->...
           - lambda: |
-              if (id(cover).state == cover::COVER_OPEN) {
-                if (id(open).state){
-                  // cover is in opening movement, stop it
-                  id(cover).stop();
+              if (id(my_cover).current_operation == COVER_OPERATION_IDLE) {
+                // Cover is idle, check current state and either open or close cover.
+                if (id(my_cover).is_fully_closed()) {
+                  id(my_cover).open();
                 } else {
-                  // cover has finished opening, close it
-                  id(cover).close();
+                  id(my_cover).close();
                 }
               } else {
-                if (id(close).state){
-                  // cover is in closing movement, stop it
-                  id(cover).stop();
-                } else {
-                  // cover has finished closing, open it
-                  id(cover).open();
-                }
+                // Cover is opening/closing. Stop it.
+                id(my_cover).stop();
               }
 
-  switch:
+    switch:
     - platform: gpio
-      pin: 12
-      id: open
+      pin: GPIO12
+      interlock: &interlock [open_cover, close_cover]
+      id: open_cover
     - platform: gpio
-      pin: 5
-      id: close
+      pin: GPIO5
+      interlock: *interlock
+      id: close_cover
 
-  cover:
-    - platform: template
+    cover:
+    - platform: time_based
       name: "Cover"
-      id: cover
+      id: my_cover
       open_action:
-        # cancel potential previous movement
-        - switch.turn_off: close
-        # perform movement
-        - switch.turn_on: open
-        # wait until cover is open
-        - delay: 60s
-        # turn of relay to prevent keeping the motor powered
-        - switch.turn_off: open
+        - switch.turn_on: open_cover
+      open_duration: 60s
       close_action:
-        - switch.turn_off: open
-        - switch.turn_on: close
-        - delay: 60s
-        - switch.turn_off: close
+        - switch.turn_on: close_cover
+      close_duration: 60s
       stop_action:
-        - switch.turn_off: open
-        - switch.turn_off: close
-      optimistic: true
+        - switch.turn_off: open_cover
+        - switch.turn_off: close_cover
 
 See Also
 --------
 
 - :doc:`/guides/automations`
-- :doc:`/components/cover/template`
+- :doc:`/components/cover/time_based`
 - :doc:`/devices/sonoff`
 - :ghedit:`Edit`
-
-.. disqus::

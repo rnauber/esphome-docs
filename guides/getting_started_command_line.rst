@@ -3,33 +3,37 @@ Getting Started with ESPHome
 
 .. seo::
     :description: Getting Started guide for installing ESPHome using the command line and creating a basic configuration.
-    :image: console.png
+    :image: console.svg
 
 ESPHome is the perfect solution for creating custom firmwares for
-your ESP8266/ESP32 boards. In this guide we’ll go through how to setup a
+your ESP8266/ESP32 boards. In this guide we’ll go through how to set up a
 basic “node” in a few simple steps.
 
 Installation
 ------------
 
 Installing ESPHome is very easy. All you need to do is have `Python
-2.7 <https://www.python.org/download/releases/2.7/>`__ installed
-(because of platformio 😕) and install the console script script through
-``pip``.
+<https://www.python.org/>`__ installed and install the console script through
+``pip3``.
+
+.. note::
+
+    Python 3.7 or above is required to install ESPHome 1.18.0 or above.
+
 
 .. code-block:: bash
 
-    pip install esphome
+    pip3 install esphome
 
-Alternatively, there’s also a docker image available for easy
-installation (the docker hub image is only available for amd64 right now; if you have
-an RPi, please install ESPHome through ``pip`` or use :doc:`the Hass.io add-on <getting_started_hassio>`:
+Alternatively, there’s also a Docker image available for easy
+installation (the Docker hub image is available for AMD64, ARM and ARM64(AARCH64) right now; if you have
+another architecture, please install ESPHome through ``pip`` or use :doc:`the Home Assistant add-on <getting_started_hassio>`:
 
 .. code-block:: bash
 
     docker pull esphome/esphome
 
-Creating A Project
+Creating a Project
 ------------------
 
 Now let’s setup a configuration file. Fortunately, ESPHome has a
@@ -39,9 +43,9 @@ file called ``livingroom.yaml``:
 
 .. code-block:: bash
 
-    esphome livingroom.yaml wizard
+    esphome wizard livingroom.yaml
     # On Docker:
-    docker run --rm -v "${PWD}":/config -it esphome/esphome livingroom.yaml wizard
+    docker run --rm -v "${PWD}":/config -it esphome/esphome wizard livingroom.yaml
 
 At the end of this step, you will have your first YAML configuration
 file ready. It doesn't do much yet and only makes your device connect to
@@ -71,7 +75,7 @@ to translate pin numbers for you based on the board. For example in the
 above configuration, if using a NodeMCU board, you could have just as
 well set ``D1`` as the ``pin:`` option.
 
-First Uploading
+First uploading
 ---------------
 
 Now you can go ahead and add some more components. Once you feel like
@@ -81,12 +85,12 @@ the device via USB and type the following command (replacing
 
 .. code-block:: bash
 
-    esphome livingroom.yaml run
+    esphome run livingroom.yaml
 
 You should see ESPHome validating the configuration and telling you
 about potential problems. Then ESPHome will proceed to compile and
 upload the custom firmware. You will also see that ESPHome created a
-new folder with the name of your node. This is a new platformio project
+new folder with the name of your node. This is a new PlatformIO project
 that you can modify afterwards and play around with.
 
 If you are running docker on Linux you can add ``--device=/dev/ttyUSB0``
@@ -94,10 +98,10 @@ to your docker command to map a local USB device.
 
 .. code-block:: bash
 
-    docker run --rm -v "${PWD}":/config --device=/dev/ttyUSB0 -it esphome/esphome livingroom.yaml compile
+    docker run --rm -v "${PWD}":/config --device=/dev/ttyUSB0 -it esphome/esphome run livingroom.yaml
 
 Now when you go to the Home Assistant "Integrations" screen (under "Configuration" panel), you
-should see the ESPHome device show up in the discovered section (can take up to 5 minutes).
+should see the ESPHome device show up in the discovered section (although this can take up to 5 minutes).
 Alternatively, you can manually add the device by clicking "CONFIGURE" on the ESPHome integration
 and entering "<NODE_NAME>.local" as the host.
 
@@ -112,7 +116,7 @@ Adding A Binary Sensor
 ----------------------
 
 Next, we’re going to add a very simple binary sensor that periodically
-checks a GPIO pin whether it’s pulled high or low - the :doc:`GPIO Binary
+checks if a particular GPIO pin is pulled high or low - the :doc:`GPIO Binary
 Sensor </components/binary_sensor/gpio>`.
 
 .. code-block:: yaml
@@ -122,8 +126,10 @@ Sensor </components/binary_sensor/gpio>`.
         name: "Living Room Window"
         pin:
           number: 16
-          inverted: True
-          mode: INPUT_PULLUP
+          inverted: true
+          mode:
+            input: true
+            pullup: true
 
 This is an advanced feature of ESPHome. Almost all pins can
 optionally have a more complicated configuration schema with options for
@@ -138,20 +144,20 @@ for docker you need to supply an additional parameter:
 
     esphome livingroom.yaml run
     # On docker
-    docker run --rm -v "${PWD}":/config -it esphome/esphome livingroom.yaml run
+    docker run --rm -v "${PWD}":/config -it esphome/esphome run livingroom.yaml
 
 .. figure:: /components/binary_sensor/images/gpio-ui.png
 
 Where To Go Next
 ----------------
 
-Great 🎉! You’ve now successfully setup your first ESPHome project
+Great 🎉! You’ve now successfully set up your first ESPHome project
 and uploaded your first ESPHome custom firmware to your node. You’ve
 also learned how to enable some basic components via the configuration
 file.
 
 So now is a great time to go take a look at the :doc:`Components Index </index>`.
-Hopefully you’ll find all sensors/outputs/… you’ll need in there. If you’re having any problems or
+Hopefully you’ll find all sensors/outputs/etc. you’ll need in there. If you’re having any problems or
 want new features, please either create a new issue on the `GitHub issue
 tracker <https://github.com/esphome/issues/issues>`__ or find us on the
 `Discord chat <https://discord.gg/KhAMKrd>`__ (also make sure to read the :doc:`FAQ <faq>`).
@@ -161,7 +167,7 @@ Bonus: ESPHome dashboard
 
 ESPHome features a dashboard that you can use to easily manage your nodes
 from a nice web interface. It was primarily designed for
-:doc:`the Hass.io add-on <getting_started_hassio>`, but also works with a simple command on
+:doc:`the Home Assistant add-on <getting_started_hassio>`, but also works with a simple command on
 \*nix machines (sorry, no windows).
 
 To start the ESPHome dashboard, simply start ESPHome with the following command
@@ -170,11 +176,16 @@ To start the ESPHome dashboard, simply start ESPHome with the following command
 .. code-block:: bash
 
     # Install dashboard dependencies
-    pip2 install tornado esptool
-    esphome config/ dashboard
+    pip install tornado esptool
+    esphome dashboard config/
 
-    # On docker, host networking mode is required for online status indicators
+    # On Docker, host networking mode is required for online status indicators
     docker run --rm --net=host -v "${PWD}":/config -it esphome/esphome
+
+    # On Docker with MacOS, the host networking option doesn't work as expected. An
+    # alternative is to use the following command if you are a MacOS user.
+    docker run --rm -p 6052:6052 -e ESPHOME_DASHBOARD_USE_PING=true -v "${PWD}":/config -it esphome/esphome
+
 
 After that, you will be able to access the dashboard through ``localhost:6052``.
 
@@ -183,8 +194,7 @@ After that, you will be able to access the dashboard through ``localhost:6052``.
 See Also
 --------
 
+- :doc:`cli`
 - :doc:`ESPHome index </index>`
 - :doc:`getting_started_hassio`
 - :ghedit:`Edit`
-
-.. disqus::

@@ -3,7 +3,7 @@ GPIO Output
 
 .. seo::
     :description: Instructions for setting up binary outputs for GPIO pins.
-    :image: pin.png
+    :image: pin.svg
 
 The GPIO output component is quite simple: It exposes a single GPIO pin
 as an output component. Note that output components are **not** switches and
@@ -40,7 +40,5 @@ See Also
 - :doc:`/components/light/binary`
 - :doc:`/components/fan/binary`
 - :doc:`/components/power_supply`
-- :apiref:`output/gpio_binary_output_component.h`
+- :apiref:`gpio/output/gpio_binary_output.h`
 - :ghedit:`Edit`
-
-.. disqus::

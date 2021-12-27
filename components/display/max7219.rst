@@ -5,7 +5,8 @@ MAX7219 7-Segment Display
     :description: Instructions for setting up MAX7219 7-segment displays.
     :image: max7219.jpg
 
-The ``max7219`` display platform allows you to use MAX7219 7-segment display drivers (`datasheet <https://datasheets.maximintegrated.com/en/ds/MAX7219-MAX7221.pdf>`__,
+The ``max7219`` display platform allows you to use MAX7219 7-segment display drivers (
+`datasheet <https://datasheets.maximintegrated.com/en/ds/MAX7219-MAX7221.pdf>`__,
 `hobbycomponents <https://hobbycomponents.com/displays/597-max7219-8-digit-seven-segment-display-module>`__)
 with ESPHome. Please note that this integration is *only* for 7-segment display, not matrix configurations.
 
@@ -42,9 +43,9 @@ Configuration variables:
 ------------------------
 
 - **cs_pin** (**Required**, :ref:`Pin Schema <config-pin_schema>`): The pin you have the CS line hooked up to.
-- **num_chips** (*Optional*, integer): The number of chips you wish to use for daisy chaining. Defaults to
+- **num_chips** (*Optional*, int): The number of chips you wish to use for daisy chaining. Defaults to
   ``1``.
-- **intensity** (*Optional*, integer): The intensity with which the MAX7219 should drive the outputs. Range is from
+- **intensity** (*Optional*, int): The intensity with which the MAX7219 should drive the outputs. Range is from
   0 (least intense) to 15 (the default).
 - **lambda** (*Optional*, :ref:`lambda <config-lambda>`): The lambda to use for rendering the content on the MAX7219.
   See :ref:`display-max7219_lambda` for more information.
@@ -52,6 +53,8 @@ Configuration variables:
 - **spi_id** (*Optional*, :ref:`config-id`): Manually specify the ID of the :ref:`SPI Component <spi>` if you want
   to use multiple SPI buses.
 - **id** (*Optional*, :ref:`config-id`): Manually specify the ID used for code generation.
+- **reverse_enable** (*Optional*, boolean): For some displays the order of the chips is reversed so you'll see "56781234" instead of "12345678". This option will adjust the output to compensate. Defaults to ``false``.
+
 
 .. _display-max7219_lambda:
 
@@ -104,9 +107,12 @@ segment of the previous position will be enabled.
           it.strftime("%H.%M.%S");
           // Result for 10:06:42 -> "10.06.42  "
 
+          // Change the display intnsity based on another id.
+          // Value should be from 0-15.
+          it.set_intensity(id(my_brightness));
+
 Please see :ref:`display-printf` for a quick introduction into the ``printf`` formatting rules and
 :ref:`display-strftime` for an introduction into the ``strftime`` time formatting.
-
 
 .. _display-max7219_characters:
 
@@ -206,6 +212,8 @@ All 7-Segment Characters
 ------------------------------ ------------------------------
 |max721908|                    ``_``
 ------------------------------ ------------------------------
+|max721909|                    ``=``
+------------------------------ ------------------------------
 |max721906|                    ``|``
 ------------------------------ ------------------------------
 |max72190D|                    ``c``
@@ -215,6 +223,8 @@ All 7-Segment Characters
 |max72191D|                    ``o``
 ------------------------------ ------------------------------
 |max72191C|                    ``u``, ``v``
+------------------------------ ------------------------------
+|max72198E|                    ``~``
 ============================== ==============================
 
 .. |max721900| image:: images/max7219/seg00.svg
@@ -307,6 +317,8 @@ All 7-Segment Characters
     :class: component-image
 .. |max721908| image:: images/max7219/seg08.svg
     :class: component-image
+.. |max721909| image:: images/max7219/seg09.svg
+    :class: component-image
 .. |max721906| image:: images/max7219/seg06.svg
     :class: component-image
 .. |max72190D| image:: images/max7219/seg0D.svg
@@ -316,6 +328,8 @@ All 7-Segment Characters
 .. |max72191D| image:: images/max7219/seg1D.svg
     :class: component-image
 .. |max72191C| image:: images/max7219/seg1C.svg
+    :class: component-image
+.. |max72198E| image:: images/max7219/seg8E.svg
     :class: component-image
 
 .. note::
@@ -329,8 +343,6 @@ See Also
 --------
 
 - :doc:`index`
-- :apiref:`display/max7219.h`
+- :apiref:`max7219/max7219.h`
 - `MAX7219 Library <https://github.com/nickgammon/MAX7219>`__ by `Nick Gammon <https://github.com/nickgammon>`__
 - :ghedit:`Edit`
-
-.. disqus::

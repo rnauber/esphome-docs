@@ -39,7 +39,7 @@ Because of this rename, ESPHome's installation methods have also changed (breaki
 - **Hass.io**: The Hass.io addon repository has moved to `https://github.com/esphome/hassio <https://github.com/esphome/hassio>`__,
   please remove the old addon repository and add the new repository.
 
-- **pip-based installs**: The new installation command is ``pip2 install esphome`` and
+- **pip-based installs**: The new installation command is ``pip install esphome`` and
   the ``esphomeyaml`` command now is called ``esphome``.
 
 - **docker-based installs**: The docker image has moved to ``esphome/esphome``. So now you need
@@ -75,6 +75,23 @@ I've made that a top priority for the next release, but I've hit some road block
 prevented it from working in a stable way for this release (and I needed to finally get this darn
 release out).
 
+Release 1.11.2 - February 26
+----------------------------
+
+- docs: Fix units on the valid frequency values :docspr:`170` by :ghuser:`kwdavidson`
+- esphome: Allow non-pullup pins for dallas :esphomepr:`456`
+- core: Turn off light at 0% brightness :corepr:`526`
+- core: HLW8012 don't count a single pulse as power :corepr:`527`
+- core: Set initial brightness to 0 when turning light on :corepr:`528`
+- core: Allow white value of addressable lights to be controlled independently of brightness :corepr:`529`
+- core: Fix WiFi not connecting to open networks :corepr:`531`
+- esphome: Remove automatic update check :esphomepr:`457`
+- esphome: Fix mDNS library added only with OTA :esphomepr:`451`
+- docs: Merge dallas component :docspr:`179` by :ghuser:`FrengerH`
+- docs: Correct ultrasonic filter_nan example :docspr:`159` by :ghuser:`apeeters`
+- docs: Cookbook entry for Display component :docspr:`173` by :ghuser:`ahd71`
+- core: Fix light partition src offset :corepr:`525`
+
 Release 1.11.1 - February 23
 ----------------------------
 
@@ -89,7 +106,7 @@ Breaking Changes
 - Removed heartbeat filter from binary sensors :corepr:`454`
 - ``optimistic`` mode for template platforms has been split off into ``optimistic`` and
   ``assumed_state`` options :corepr:`455`
-- ``run_cycles`` has been removed from deep_sleep :esphome:`353`
+- ``run_cycles`` has been removed from deep_sleep :esphomepr:`353`
 
 Other notable changes:
 ----------------------
@@ -131,7 +148,8 @@ Beta Fixes
 
 All changes
 -----------
-- core: Attemp to fix the addressable flicker effect :corepr:`392` by :ghuser:`RomRider`
+
+- core: Attempt to fix the addressable flicker effect :corepr:`392` by :ghuser:`RomRider`
 - esphome: typing is only required for python < 3.5 :esphomepr:`341` by :ghuser:`dotlambda`
 - esphome: Fix install pillow in docker image :esphomepr:`338`
 - esphome: Allow IPv4 addresses for SNTP servers :esphomepr:`340`
@@ -204,7 +222,7 @@ All changes
 - core: Better error messages for OTA :corepr:`486`
 - esphome: Better error messages for OTA :esphomepr:`418`
 - core: Synchronize homeassistant time periodically :corepr:`485`
-- core: ESP8266 Arduino 2.5.0 Compatability :corepr:`481` (cherry-picked)
+- core: ESP8266 Arduino 2.5.0 Compatibility :corepr:`481` (cherry-picked)
 - esphome: Add Switch Interlocking :esphomepr:`411` (cherry-picked)
 - esphome: Add local mDNS responder for .local :esphomepr:`386` (cherry-picked)
 - core: Auto-Redact private information from logs :corepr:`488`
@@ -275,5 +293,3 @@ Past Changelogs
     v1.9.0
     v1.8.0
     v1.7.0
-
-.. disqus::

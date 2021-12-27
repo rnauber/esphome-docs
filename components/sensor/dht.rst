@@ -8,15 +8,15 @@ DHT Temperature+Humidity Sensor
 
 The DHT Temperature+Humidity sensor allows you to use your DHT11
 (`datasheet <https://akizukidenshi.com/download/ds/aosong/DHT11.pdf>`__,
-`adafruit <https://www.adafruit.com/product/386>`__), DHT22
+`Adafruit <https://www.adafruit.com/product/386>`__), DHT22
 (`datasheet <https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf>`__,
-`adafruit <https://www.adafruit.com/product/385>`__), AM2302
+`Adafruit <https://www.adafruit.com/product/385>`__), AM2302
 (`datasheet <https://cdn-shop.adafruit.com/datasheets/Digital+humidity+and+temperature+sensor+AM2302.pdf>`__,
-`adafruit <https://www.adafruit.com/product/393>`__), RHT03
+`Adafruit <https://www.adafruit.com/product/393>`__), RHT03
 (`datasheet <https://cdn.sparkfun.com/datasheets/Sensors/Weather/RHT03.pdf>`__,
-`sparkfun <https://cdn.sparkfun.com/datasheets/Sensors/Weather/RHT03.pdf>`__) and SI7021 (one wire Sonoff version)
+`SparkFun <https://cdn.sparkfun.com/datasheets/Sensors/Weather/RHT03.pdf>`__) and SI7021 (one wire Sonoff version)
 (`datasheet <https://cdn.sparkfun.com/assets/b/1/b/8/5/Si7021-A20.pdf>`__,
-`sparkfun <https://cdn.sparkfun.com/assets/b/1/b/8/5/Si7021-A20.pdf>`__)
+`SparkFun <https://cdn.sparkfun.com/assets/b/1/b/8/5/Si7021-A20.pdf>`__)
 sensors with ESPHome.
 
 .. figure:: images/dht-full.jpg
@@ -64,16 +64,16 @@ Configuration variables:
   - All other options from :ref:`Sensor <config-sensor>`.
 
 - **model** (*Optional*, int): Manually specify the DHT model, can be
-  one of ``AUTO_DETECT``, ``DHT11``, ``DHT22``, ``AM2302``, ``RHT03``, ``SI7021``
+  one of ``AUTO_DETECT``, ``DHT11``, ``DHT22``, ``DHT22_TYPE2``, ``AM2302``, ``RHT03``, ``SI7021``
   and helps with some connection issues. Defaults to ``AUTO_DETECT``.  Auto detection doesn't work for the SI7021 chip.
 - **update_interval** (*Optional*, :ref:`config-time`): The interval to check the
   sensor. Defaults to ``60s``.
 
 .. note::
 
-   If you're seeing lots of invalid temperature/humidity warnings in the logs, try manually setting the
-   DHT model with the ``model:`` configuration variable. Other problems could be wrong pull-up resistor values
-   on the DATA pin or too long cables.
+    If you're seeing lots of invalid temperature/humidity warnings in the logs, try manually setting the
+    DHT model with the ``model:`` configuration variable. Other problems could be wrong pull-up resistor values
+    on the DATA pin or too long cables.
 
 See Also
 --------
@@ -83,8 +83,6 @@ See Also
 - :doc:`hdc1080`
 - :doc:`htu21d`
 - :doc:`sht3xd`
-- :apiref:`sensor/dht_component.h`
+- :apiref:`dht/dht.h`
 - `Arduino DHTLib <https://playground.arduino.cc/Main/DHTLib>`__
 - :ghedit:`Edit`
-
-.. disqus::

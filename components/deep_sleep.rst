@@ -1,18 +1,18 @@
+.. _deep_sleep-component:
+
 Deep Sleep Component
 ====================
 
 .. seo::
     :description: Instructions for setting up the deep sleep support for minimizing power consumption on ESPs.
-    :image: hotel.png
+    :image: hotel.svg
 
 The ``deep_sleep`` component can be used to automatically enter a deep sleep mode on the
 ESP8266/ESP32 after a certain amount of time. This is especially useful with nodes that operate
 on batteries and therefore need to conserve as much energy as possible.
 
 To use ``deep_sleep`` first specify how long the node should be active, i.e. how long it should
-check sensor values and report them, using the ``run_duration`` options. If you
-use both in your configuration, any time either one of them is finished, the node will go into deep
-sleep mode.
+check sensor values and report them, using the ``run_duration`` option.
 
 Next, tell the node how it should wakeup. On the ESP8266, you can only put the node into deep sleep
 for a duration using ``sleep_duration``, note that on the ESP8266 ``GPIO16`` must be connected to
@@ -35,9 +35,10 @@ Configuration variables:
 
 - **run_duration** (*Optional*, :ref:`config-time`): The time duration the node should be active, i.e. run code.
 - **sleep_duration** (*Optional*, :ref:`config-time`): The time duration to stay in deep sleep mode.
-- **wakeup_pin** (*Optional*, :ref:`Pin Schema <config-pin_schema>`):
-  Only on ESP32. A pin to wake up to once in deep sleep mode. Use the inverted property to wake up
-  to LOW signals.
+- **touch_wakeup** (*Optional*, boolean): Only on ESP32. Use a touch event to wakeup from deep sleep. To be able
+  to wakeup from a touch event, :ref:`esp32-touch-binary-sensor` must be configured properly.
+- **wakeup_pin** (*Optional*, :ref:`Pin Schema <config-pin_schema>`): Only on ESP32. A pin to wake up to once
+  in deep sleep mode. Use the inverted property to wake up to LOW signals.
 - **wakeup_pin_mode** (*Optional*): Only on ESP32. Specify how to handle waking up from a ``wakeup_pin`` if
   the wakeup pin is already in the state with which it would wake up when attempting to enter deep sleep.
   See :ref:`deep_sleep-esp32_wakeup_pin_mode`. Defaults to ``IGNORE``
@@ -51,6 +52,10 @@ Advanced features:
   - **pins** (**Required**, list of pin numbers): The pins to wake up on.
   - **mode** (*Optional*): The mode to use for the wakeup source. Must be one of ``ALL_LOW`` (wake up when
     all pins go LOW) or ``ANY_HIGH`` (wake up when any pin goes HIGH).
+
+.. note::
+
+    Only one deep sleep component may be configured.
 
 .. _deep_sleep-esp32_wakeup_pin_mode:
 
@@ -81,7 +86,13 @@ This action makes the given deep sleep component enter deep sleep immediately.
 
     on_...:
       then:
-        - deep_sleep.enter: deep_sleep_1
+        - deep_sleep.enter:
+            id: deep_sleep_1
+            sleep_duration: 20min
+
+Configuration options:
+
+- **sleep_duration** (*Optional*, :ref:`templatable <config-templatable>`, :ref:`config-time`): The time duration to stay in deep sleep mode.
 
 
 .. _deep_sleep-prevent_action:
@@ -90,7 +101,7 @@ This action makes the given deep sleep component enter deep sleep immediately.
 -----------------------------
 
 This action prevents the given deep sleep component from entering deep sleep.
-Useful for
+Useful for keeping the ESP active during data transfer or OTA updating (See note below for more information).
 
 .. code-block:: yaml
 
@@ -105,11 +116,13 @@ Useful for
 
     You can use this automation to automatically prevent deep sleep when a MQTT message on the topic
     ``livingroom/ota_mode`` is received. Then, to do the OTA update, just
-    use a MQTT client to publish a retained MQTT message described above. When the node wakes up again
+    use a MQTT client to publish a retained MQTT message described below. When the node wakes up again
     it will no longer enter deep sleep mode and you can upload your OTA update.
 
     Remember to turn "OTA mode" off again after the OTA update by sending a MQTT message with the payload
-    ``OFF``.
+    ``OFF``. To enter the the deep sleep again after the OTA update send a message on the topic ``livingroom/sleep_mode``
+    with payload ``ON``. Deep sleep will start immediately. Don't forget to delete the payload before the node
+    wakes up again.
 
     .. code-block:: yaml
 
@@ -119,16 +132,19 @@ Useful for
         mqtt:
           # ...
           on_message:
-            topic: livingroom/ota_mode
-            then:
-              - deep_sleep.prevent: deep_sleep_1
+            - topic: livingroom/ota_mode
+              payload: 'ON'
+              then:
+                - deep_sleep.prevent: deep_sleep_1
+            - topic: livingroom/sleep_mode
+              payload: 'ON'
+              then:
+                - deep_sleep.enter: deep_sleep_1
 
 See Also
 --------
 
 - :doc:`switch/shutdown`
 - :ref:`automation`
-- :apiref:`deep_sleep_component.h`
+- :apiref:`deep_sleep/deep_sleep_component.h`
 - :ghedit:`Edit`
-
-.. disqus::

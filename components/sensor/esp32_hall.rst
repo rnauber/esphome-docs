@@ -3,7 +3,7 @@ ESP32 Hall Sensor
 
 .. seo::
     :description: Instructions for setting up the integrated hall-effect sensor of the ESP32.
-    :image: magnet.png
+    :image: magnet.svg
     :keywords: esp32, hall
 
 The ``esp32_hall`` sensor platform allows you to use the integrated
@@ -51,7 +51,5 @@ See Also
 - :ref:`sensor-filters`
 - :doc:`adc`
 - :doc:`/devices/esp32`
-- :apiref:`sensor/esp32_hall_sensor.h`
+- :apiref:`esp32_hall/esp32_hall.h`
 - :ghedit:`Edit`
-
-.. disqus::

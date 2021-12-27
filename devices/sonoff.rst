@@ -3,9 +3,9 @@ Generic Sonoff
 
 .. seo::
     :description: Instructions for using generic Sonoff devices with ESPHome.
-    :image: sonoff.png
+    :image: sonoff.svg
 
-In principle ESPHome supports all Sonoff devices, but as these devices are quite expensive
+In principle ESPHome supports all Sonoff devices, but as these devices are quite cheap
 and shipping from China takes a long time, I've only set up dedicated guides for the
 :doc:`Sonoff S20 <sonoff_s20>` and :doc:`Sonoff 4CH <sonoff_4ch>`.
 
@@ -14,11 +14,15 @@ and shipping from China takes a long time, I've only set up dedicated guides for
     esphome:
       name: <NAME_OF_NODE>
       platform: ESP8266
-      board: esp01_1m
+      board: esp8285
 
 After that use the following list of pin to function mappings to set up your Sonoff device.
 This list has been compiled from the Sonoff Tasmota pin source file which can be found here:
-https://github.com/arendst/Sonoff-Tasmota/blob/development/sonoff/sonoff_template.h ❤️
+https://github.com/arendst/Tasmota/blob/development/tasmota/tasmota_template.h ❤️
+
+.. note::
+
+    SAFETY HAZARD: Some devices such as Sonoff POWs/Shelly/etc, have the digital GND connected directly to mains voltage so **the GPIOs become LIVE during normal operation**. Our advice is to mark these boards to prevent any use of the dangerous digital pins.
 
 Sonoff RF
 ---------
@@ -32,7 +36,6 @@ Sonoff RF
     GPIO3, UART RX pin (for external sensors)
     GPIO4, Optional sensor
     GPIO14, Optional sensor
-
 
 Sonoff SV
 ---------
@@ -62,6 +65,7 @@ Sonoff TH10/TH16
     GPIO3, UART RX pin (for external sensors)
     GPIO4, Optional sensor
     GPIO14, Optional sensor
+    GPIO2, Optional Pin EXP-LOG (TH16 Ver 2.1 2019)
 
 Sonoff Dual R1
 --------------
@@ -85,6 +89,34 @@ Sonoff Dual R2
     GPIO13, Blue LED (inverted),
     GPIO4, Optional sensor
     GPIO14, Optional sensor
+
+Sonoff Dual R2 v1.4
+-------------------
+
+.. pintable::
+
+    GPIO00, Button #0(inside header board v1.4),
+    GPIO09, Button #1(inside header board v1.4),
+    GPIO12, Relay #1,
+    GPIO5, Relay #2,
+    GPIO10, Button on the case,
+    GPIO13, Blue LED (inverted)
+
+Sonoff Dual R3 v1.x
+-------------------
+
+.. pintable::
+
+    GPIO27, Relay #1,
+    GPIO14, Relay #2,
+    GPIO0, Button,
+    GPIO13, Blue LED (inverted),
+    GPIO32, SW Input #1 (inverted),
+    GPIO33, SW Input #2 (inverted),
+    GPIO25, UART TX pin (for power sensor)
+    GPIO26, UART RX pin (for power sensor)
+
+See :doc:`/components/sensor/cse7761` for measuring power.
 
 Sonoff Pow R1
 -------------
@@ -192,10 +224,10 @@ Same configuration as the :doc:`Sonoff 4CH <sonoff_4ch>`.
 Sonoff B1, Ai-Thinker AiLight
 -----------------------------
 
-See :doc:`/components/my9231`.
+See :doc:`/components/output/my9231`.
 
-Sonoff T1 1CH, 2CH, 3CH
------------------------
+Sonoff T1, Sonoff T3 (1CH, 2CH, 3CH)
+------------------------------------
 
 .. pintable::
 
@@ -206,6 +238,7 @@ Sonoff T1 1CH, 2CH, 3CH
     GPIO10, Button 3 (inverted),
     GPIO4, Relay 3 and Blue LED,
     GPIO13, Blue LED (inverted),
+
     GPIO1, UART TX pin (for external sensors)
     GPIO3, UART RX pin (for external sensors)
 
@@ -292,6 +325,30 @@ Sonoff S31
 
 See :doc:`/components/sensor/cse7766` for measuring power
 
+Sonoff S55
+----------
+
+.. pintable::
+
+    GPIO0, Button (inverted),
+    GPIO12, Relay and Red LED,
+    GPIO13, Blue LED (inverted),
+    GPIO1, UART TX pin (for external sensors)
+    GPIO3, UART RX pin (for external sensors)
+
+
+Sonoff Mini
+-----------
+
+.. pintable::
+
+    GPIO0, Button (inverted),
+    GPIO4, SW Input (inverted),
+    GPIO12, Relay and Red LED,
+    GPIO13, Blue LED (inverted),
+    GPIO16, Optional sensor
+
+
 Shelly 1
 --------
 
@@ -327,6 +384,36 @@ Teckin
 See :doc:`/components/sensor/hlw8012` for measuring power.
 Example config: `teckin.yaml <https://github.com/esphome/esphome-docs/blob/current/devices/teckin.yaml>`__
 
+Teckin SP20 (US)
+----------------
+
+.. pintable::
+
+    GPIO13, Button,
+    GPIO2, Blue LED (inverted),
+    GPIO0, Red LED (inverted),
+    GPIO4, Relay,
+
+    GPIO12, HLW8012 SEL Pin (inverted),
+    GPIO5, HLW8012 CF Pin,
+    GPIO14, HLW8012 CF1 Pin,
+
+See :doc:`/components/sensor/hlw8012` for measuring power.
+Example config: `teckin_sp20_us.yaml <https://github.com/esphome/esphome-docs/blob/current/devices/teckin_sp20_us.yaml>`__
+
+TorchStar LED Controller (Nov 2018)
+-----------------------------------
+
+.. pintable::
+
+    GPIO13, Button (inverted),
+    GPIO16, Blue LED (inverted),
+    GPIO4, Red LED (inverted),
+    GPIO14, Red Channel,
+    GPIO12, Green Channel,
+    GPIO5, Blue Channel,
+    GPIO15, White Channel,
+
 See Also
 --------
 
@@ -335,5 +422,3 @@ See Also
 - :doc:`sonoff_basic`
 - :doc:`esp8266`
 - :ghedit:`Edit`
-
-.. disqus::

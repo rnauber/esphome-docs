@@ -3,7 +3,7 @@ Binary Light
 
 .. seo::
     :description: Instructions for setting up binary ON/OFF lights in ESPHome.
-    :image: lightbulb.png
+    :image: lightbulb.svg
 
 The ``binary`` light platform creates a simple ON/OFF-only light from a
 :ref:`binary output component <output>`.
@@ -18,7 +18,12 @@ The ``binary`` light platform creates a simple ON/OFF-only light from a
     light:
       - platform: binary
         name: "Desk Lamp"
-        output: output_component1
+        output: light_output
+
+    output:
+      - id: light_output
+        platform: gpio
+        pin: GPIO16
 
 Configuration variables:
 ------------------------
@@ -29,11 +34,7 @@ Configuration variables:
 - **id** (*Optional*, :ref:`config-id`): Manually specify the ID used for code generation.
 - **effects** (*Optional*, list): A list of :ref:`light effects <light-effects>` to use for this light, though binary lights
   only support very few of them.
-
-- **internal** (*Optional*, boolean): Mark this component as internal. Internal components will
-  not be exposed to the frontend (like Home Assistant). Only specifying an ``id`` without
-  a ``name`` will implicitly set this to true.
-- If MQTT enabled, all other options from :ref:`MQTT Component <config-mqtt-component>`.
+- All other options from :ref:`Light <config-light>`.
 
 See Also
 --------
@@ -42,7 +43,5 @@ See Also
 - :doc:`/components/light/index`
 - :doc:`/components/output/gpio`
 - :doc:`/components/power_supply`
-- :apiref:`light/light_state.h`
+- :apiref:`binary/light/binary_light_output.h`
 - :ghedit:`Edit`
-
-.. disqus::

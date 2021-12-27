@@ -3,23 +3,23 @@ Sonoff Fish Pond Pump
 
 .. seo::
     :description: Making an automated fish pond pump with timing and auto stop safety with Sonoff Basic ESP8266 chip
-    :image: images/sonoff-fishpond-pump-installed.jpg
+    :image: cookbook-sonoff-fishpond-pump.jpg
     :keywords: sonoff, esp8266, home automation, ESPHome, hass, home assistant
 
 .. figure:: images/sonoff-fishpond.jpg
     :align: center
     :width: 75.0%
 
-The Sonoff range of products containing the ESP chips from espressif has a myriad of uses and best of all, you can customize it, aka hackable.
+The Sonoff range of products containing the ESP chips from Espressif has a myriad of uses and best of all, you can customize it, aka hackable.
 This quick cookbook aims to provide a clear, simple working example.
 
-This example is very basic in it's operation.
+This example is very basic in its operation.
 
 * Start the pump every hour and run it for 10 minutes.
-* Manually start and stop the pump with the toggle button on the Sonoff basic.
+* Manually start and stop the pump with the toggle button on the Sonoff Basic.
 * Use a water float sensor and stop the pump if water level is too low.
 
-*Some of the later Sonoff basics does not have GPIO pin available, check your board first*
+*Some of the later Sonoff Basics does not have GPIO pin available, check your board first*
 
 This example is using ESPHome 1.10.1 and Home Assistant 0.85.1
 
@@ -28,10 +28,10 @@ Assumptions
 
 As many of the details on here a predicated on existing installations and knowledge the following is assumed:
 
-* You have installed the relevant environment and it is functional (Home Assisant, ESPHome).
+* You have installed the relevant environment and it is functional (Home Assistant, ESPHome).
 * You need to create your own secrets.yaml file.
 * You are proficient in reading instructions and capable of using a search engine.
-* You will look at the documentation on https://esphome.io/ (we may have missed something in this example).
+* You will look at the documentation on this website (we may have missed something in this example).
 * This serves only as a guide and errors and outlets are excluded.
 
 .. warning::
@@ -49,7 +49,7 @@ Here is the configuration with the basic operations outlined above.
 
     ## Fish pond sonoff
     ## filename: fishpond.yaml
-    # Sonoff basic
+    # Sonoff Basic
     # Button toggles pump on/off
     # Float sensor stops pump
     # Cron'd to run every hour, on the hour for 10 minutes
@@ -115,7 +115,9 @@ Here is the configuration with the basic operations outlined above.
         name: "esp_fishpond_gpio14"
         pin:
           number: 14
-          mode: INPUT_PULLUP
+          mode:
+            input: true
+            pullup: true
         on_press:
           - switch.turn_off: esp_fishpond_pump
 
@@ -137,7 +139,8 @@ Here is the configuration with the basic operations outlined above.
 
 2. Programming
 **************
-Follow the standard way of uploading to your Sonoff basic.
+
+Follow the standard way of uploading to your Sonoff Basic.
 
 .. figure:: images/sonoff-fishpond-pump-1-programming.jpg
     :align: center
@@ -165,7 +168,7 @@ Both options USB and OTA are done by running the command:
 More details on programming can be found on :doc:`/devices/sonoff_basic`
 
 3. Prepping and installing
-****************************
+**************************
 
 * Ensure power is switched off.
 * You can now add your water level sensor wiring to the PCB and have it extrude, SAFELY, next to your connector block.
@@ -194,7 +197,7 @@ Wires connected for easier access to connect and disconnect water level sensor
     :align: center
     :width: 75.0%
 
-This needs to be submursed, pump (bio filter) and sensor connected in single housing (icecream tub).
+This needs to be submersed, pump (bio filter) and sensor connected in single housing (icecream tub).
 
 .. figure:: images/sonoff-fishpond-pump-installed.jpg
     :align: center
@@ -202,7 +205,7 @@ This needs to be submursed, pump (bio filter) and sensor connected in single hou
 
 In this PVC housing the plates are secured using cabinet door magnets for easier access and maintenance.
 
-* Ensure you are using a proper and compliant waterproof box to house your electrical equipment (Sonoff basic) in.
+* Ensure you are using a proper and compliant waterproof box to house your electrical equipment (Sonoff Basic) in.
 * Ensure you plan to be able to remove the unit with minimal effort should you need to manually USB reflash it again in future.
 
 2.6. Home Assistant
@@ -214,7 +217,5 @@ See Also
 --------
 
 - :doc:`/devices/sonoff_basic`
-- `Flashing sonoff basic <https://randomnerdtutorials.com/how-to-flash-a-custom-firmware-to-sonoff/>`__.
+- `Flashing Sonoff Basic <https://randomnerdtutorials.com/how-to-flash-a-custom-firmware-to-sonoff/>`__.
 - `Adding ESPHome to Home Assistant <https://www.home-assistant.io/components/esphome/>`__.
-
-.. disqus::

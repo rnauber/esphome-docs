@@ -1,10 +1,17 @@
-ESPHOME_CORE_PATH = ../esphome-core
-ESPHOME_CORE_TAG = v1.11.1
+ESPHOME_PATH = ../esphome
+ESPHOME_REF = 2021.12.2
 
-.PHONY: html cleanhtml deploy help webserver Makefile netlify netlify-api api netlify-dependencies svg2png copy-svg2png
+.PHONY: html html-strict cleanhtml deploy help webserver Makefile netlify netlify-api api netlify-dependencies svg2png copy-svg2png minify
 
 html:
-	sphinx-build -M html . _build $(O)
+	sphinx-build -M html . _build -j auto -n $(O)
+
+html-strict:
+	sphinx-build -M html . _build -W -j auto -n $(O)
+
+minify:
+	minify -o _static/webserver-v1.min.js _static/webserver-v1.js
+	minify -o _static/webserver-v1.min.css _static/webserver-v1.css
 
 cleanhtml:
 	rm -rf "_build/html/*"
@@ -17,17 +24,19 @@ help:
 
 api:
 	mkdir -p _build/html/api
-	@if [ ! -d "$(ESPHOME_CORE_PATH)" ]; then \
-	  git clone --branch $(ESPHOME_CORE_TAG) https://github.com/esphome/esphome-core.git $(ESPHOME_CORE_PATH); \
+	@if [ ! -d "$(ESPHOME_PATH)" ]; then \
+	  git clone --branch $(ESPHOME_REF) https://github.com/esphome/esphome.git $(ESPHOME_PATH) || \
+	  git clone --branch beta https://github.com/esphome/esphome.git $(ESPHOME_PATH); \
 	fi
-	ESPHOME_CORE_PATH=$(ESPHOME_CORE_PATH) doxygen Doxygen
+	ESPHOME_PATH=$(ESPHOME_PATH) doxygen Doxygen
 
 netlify-api: netlify-dependencies
 	mkdir -p _build/html/api
-	@if [ ! -d "$(ESPHOME_CORE_PATH)" ]; then \
-	  git clone --branch $(ESPHOME_CORE_TAG) https://github.com/esphome/esphome-core.git $(ESPHOME_CORE_PATH); \
+	@if [ ! -d "$(ESPHOME_PATH)" ]; then \
+	  git clone --branch $(ESPHOME_REF) https://github.com/esphome/esphome.git $(ESPHOME_PATH) || \
+	  git clone --branch beta https://github.com/esphome/esphome.git $(ESPHOME_PATH); \
 	fi
-	ESPHOME_CORE_PATH=$(ESPHOME_CORE_PATH) ../doxybin/doxygen Doxygen
+	ESPHOME_PATH=$(ESPHOME_PATH) ../doxybin/doxygen Doxygen
 
 netlify-dependencies:
 	mkdir -p ../doxybin
@@ -38,10 +47,12 @@ copy-svg2png:
 	cp svg2png/*.png _build/html/_images/
 
 netlify: netlify-dependencies netlify-api html copy-svg2png
-	python3 travis.py
 
 webserver: html
-	cd "$(BUILDDIR)/html" && python3 -m http.server
+	cd "_build/html" && python3 -m http.server
+
+lint: html-strict
+	python3 travis.py
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

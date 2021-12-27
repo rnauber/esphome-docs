@@ -14,9 +14,8 @@ the message "Hello World!".
 .. code-block:: cpp
 
     #include "esphome.h"
-    using namespace esphome;
 
-    class MyCustomTextSensor : public PollingComponent, public text_sensor::TextSensor {
+    class MyCustomTextSensor : public PollingComponent, public TextSensor {
      public:
       // constructor
       MyCustomTextSensor() : PollingComponent(15000) {}
@@ -61,11 +60,8 @@ Configuration variables:
 
     - All options from :ref:`Text Sensor <config-text_sensor>`.
 
-See :cpp:class:`text_sensor::TextSensor`
-
 See Also
 --------
 
+- :apiclass:`API Reference <text_sensor::TextSensor>`
 - :ghedit:`Edit`
-
-.. disqus::
